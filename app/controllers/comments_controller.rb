@@ -10,6 +10,15 @@ class CommentsController < ApplicationController
   end
 
   def create
+    # https://api.rubyonrails.org/classes/ActionController/Redirecting.html#method-i-redirect_back_or_to
+    # in case browser settings prevent the Referer header from being set correctly, fall back to the original commentable itself
+    @redirect_fallback = @commentable
+
+    # If sharing with both parties, create comment on Disbursement instead of HcbCode
+    if params[:comment][:share_with_both] == "1" && @commentable.shared_commentable?
+      @commentable = @commentable.shared_commentable
+    end
+
     @comment = @commentable.comments.build(comment_params)
     @comment.user = current_user
 
@@ -17,7 +26,7 @@ class CommentsController < ApplicationController
 
     if @comment.save
       flash[:success] = "Comment created."
-      redirect_to @commentable.is_a?(Event) ? edit_event_path(@commentable, tab: :admin) : @commentable
+      redirect_back_or_to @redirect_fallback
     else
       render :new, status: :unprocessable_entity
     end
@@ -73,7 +82,7 @@ class CommentsController < ApplicationController
     params.require(:comment).permit(:content, :file, :admin_only)
   end
 
-  COMMENTABLE_TYPE_MAP = [AchTransfer, EmburseCardRequest, EmburseTransaction,
+  COMMENTABLE_TYPE_MAP = [AchTransfer, Disbursement, EmburseCardRequest, EmburseTransaction,
                           EmburseTransfer, Event, GSuite, HcbCode, Api::Models::CardCharge,
                           OrganizerPositionDeletionRequest, User, Reimbursement::Report, CardGrant,
                           Ledger::Item].index_by(&:to_s).freeze

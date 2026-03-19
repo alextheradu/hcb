@@ -366,7 +366,7 @@ class HcbCode < ApplicationRecord
   def disbursement?
     Rails.error.unexpected "HcbCode#disbursement? accessed"
 
-    return [::TransactionGroupingEngine::Calculate::HcbCode::OUTGOING_DISBURSEMENT_CODE, ::TransactionGroupingEngine::Calculate::HcbCode::INCOMING_DISBURSEMENT_CODE].include?(hcb_i1)
+    outgoing_disbursement? || incoming_disbursement?
   end
 
   def outgoing_disbursement?
@@ -456,6 +456,20 @@ class HcbCode < ApplicationRecord
     return nil unless outgoing_disbursement?
 
     Disbursement.find_by(id: hcb_i2)&.outgoing_disbursement
+  end
+
+  # Overrides shared_commentable? in Commentable concern to avoid
+  # unnecessary database read
+  def shared_commentable?
+    outgoing_disbursement? || incoming_disbursement?
+  end
+
+  def shared_commentable
+    (outgoing_disbursement || incoming_disbursement)&.disbursement
+  end
+
+  def shared_comment_recipient_label
+    (outgoing_disbursement || incoming_disbursement)&.shared_comment_recipient_label
   end
 
   def card_grant

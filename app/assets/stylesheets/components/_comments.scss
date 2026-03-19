@@ -40,6 +40,15 @@
   );
 }
 
+.comments .card.comment--shared {
+  border: 1px dashed map-get($palette, primary);
+  background-color: mix(
+    map-get($palette, white),
+    map-get($palette, primary),
+    95%
+  );
+}
+
 .mention-suggestions {
   min-width: 180px !important;
   padding: 0px;

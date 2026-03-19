@@ -34,6 +34,12 @@ class Disbursement
       canonical_pending_transactions.pending_expired.any?
     end
 
+    # Label for sharing comments with the other side (source)
+    def shared_comment_recipient_label
+      card_grant = source_subledger&.card_grant
+      card_grant ? "Grant to #{card_grant.user.name}" : source_event.name
+    end
+
   end
 
 end

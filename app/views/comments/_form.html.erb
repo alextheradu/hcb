@@ -44,6 +44,13 @@
     <%= form.hidden_field :commentable_type, value: commentable&.class %>
     <%= form.hidden_field :commentable_id, value: commentable&.id %>
 
+    <% if commentable.shared_commentable? && !@comment&.persisted? %>
+      <div class="field field--checkbox mb0">
+        <%= check_box_tag "comment[share_with_both]", "1", false, id: "comment_share_with_both" %>
+        <%= label_tag "comment_share_with_both", "Also share with #{commentable.shared_comment_recipient_label}" %>
+      </div>
+    <% end %>
+
     <% admin_tool("inline-flex", "span") do %>
       <% if defined?(admin_only) %>
         <%= form.hidden_field :admin_only, value: true %>

@@ -53,6 +53,7 @@ class Disbursement < ApplicationRecord
   include AASM
 
   include Freezable
+  include Commentable
 
   validate on: :create do
     if source_event.financially_frozen?

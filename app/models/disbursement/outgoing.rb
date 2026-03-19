@@ -24,6 +24,12 @@ class Disbursement
       disbursement.source_transaction_category
     end
 
+    # Label for sharing comments with the other side (destination)
+    def shared_comment_recipient_label
+      card_grant = destination_subledger&.card_grant
+      card_grant ? "Grant to #{card_grant.user.name}" : destination_event.name
+    end
+
   end
 
 end
